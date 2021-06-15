@@ -1,4 +1,4 @@
-# vuetify-player
+# vuetify-bar-music-player
 
 ## Project setup
 ```
