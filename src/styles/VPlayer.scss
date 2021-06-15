@@ -1,0 +1,24 @@
+@import './_variables.scss';
+
+.v-player {
+  bottom: $player-bottom;
+  justify-content: center;
+  width: 100%;
+
+
+  &--bottom {
+    top: auto;
+  }
+  &--absolute {
+    // height: 100%;
+    position: absolute;
+    z-index: $player-absolute-z-index;
+    height: $player-absolute-height;
+  }
+  &--fixed {
+    // height: 100%;
+    position: fixed;
+    z-index: $player-absolute-z-index;
+    height: $player-absolute-height;
+  }
+}

@@ -1,0 +1,24 @@
+@import './_variables.scss';
+
+.player-playlist {
+  justify-content: center;
+  right: 0;
+
+  &--right {
+    left: auto;
+  }
+  &--bottom {
+    top: auto;
+  }
+  &--absolute {
+    // height: 100%;
+    position: absolute;
+    z-index: 1;
+  }
+  &--fixed {
+    // height: 100%;
+    position: fixed;
+    z-index: 1;
+    bottom: $player-absolute-height;
+  }
+}
