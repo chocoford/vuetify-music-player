@@ -10,17 +10,17 @@
             <v-col md="4">
               <div class="d-flex justify-start">
                 <v-avatar rounded size="60">
-                  <v-img src="https://picsum.photos/200?random"></v-img>
+                  <v-img :src="localAvatarSrc"></v-img>
                 </v-avatar>
                 <div class="d-flex-column ml-3 text-start my-auto">
-                  <div class="font-weight-bold">{{ title }}</div>
-                  <div>{{ authors.join('/') }}</div>
+                  <div class="font-weight-bold">{{ localTitle }}</div>
+                  <div>{{ localAuthors.join('/') }}</div>
                 </div>
               </div>
             </v-col>
             <v-col md="4">
               <div class="d-flex justify-center">
-                <slot name="centerLeft" />
+                <slot name="centerLeading" />
                 <v-btn
                   icon
                   class="ma-2 my-auto"
@@ -50,37 +50,37 @@
                 >
                   <v-icon>mdi-skip-next</v-icon>
                 </v-btn>
-                <slot name="centerRight" />
+                <slot name="centerTrailing" />
               </div>
             </v-col>
-            <v-col md="4">
-              <div class="d-flex justify-start my-auto">
-                <v-slider
-                  v-model="volume"
-                  :prepend-icon="
-                    isMuted ? 'mdi-volume-mute' : 'mdi-volume-high'
-                  "
-                  @click:prepend="mute"
-                  max="1"
-                  step="0.01"
-                  min="0"
-                  hide-details
-                ></v-slider>
-                <v-btn icon @click="playlist = !playlist">
-                  <v-icon>mdi-playlist-play</v-icon>
-                </v-btn>
-                <v-btn
-                  icon
-                  :color="color"
-                  @click.native="loaded ? download() : reload()"
-                  v-if="loaded && downloadable"
-                >
-                  <v-icon>mdi-download</v-icon>
-                </v-btn>
-                <v-btn icon :color="color" @click="$emit('change', false)">
-                  <v-icon>mdi-close-box</v-icon>
-                </v-btn>
-              </div>
+            <v-col md="4" class="d-flex justify-start my-auto">
+              <v-slider
+                v-model="volume"
+                :prepend-icon="isMuted ? 'mdi-volume-mute' : 'mdi-volume-high'"
+                @click:prepend="mute"
+                max="1"
+                step="0.01"
+                min="0"
+                hide-details
+              ></v-slider>
+              <v-btn icon disabled>
+                <v-icon>mdi-file-music</v-icon>
+              </v-btn>
+              <slot name="right" />
+              <v-btn icon @click="playlist = !playlist">
+                <v-icon>mdi-playlist-play</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                :color="color"
+                @click.native="loaded ? download() : reload()"
+                v-if="loaded && downloadable"
+              >
+                <v-icon>mdi-download</v-icon>
+              </v-btn>
+              <v-btn icon :color="color" @click="$emit('change', false)">
+                <v-icon>mdi-close-box</v-icon>
+              </v-btn>
             </v-col>
           </v-row>
           <v-progress-linear
@@ -90,7 +90,8 @@
             style="margin-top: 15px; margin-bottom: 15px"
             @click.native="setPosition()"
             :disabled="!loaded"
-            :stream="stream"
+            :stream="stream && localStream"
+            :indeterminate="loading"
           ></v-progress-linear>
           <div>{{ currentTime }} / {{ duration }}</div>
         </v-card-text>
@@ -98,9 +99,14 @@
         <audio
           id="audio"
           ref="audio"
-          v-on:ended="ended"
-          v-on:canplay="canPlay"
-          :src="file"
+          :src="localFileSrc"
+          @progress="localStream = true"
+          @canplay="handleCanPlay"
+          @loadeddata="handleLoaded"
+          @playing="playing = true"
+          @pause="playing = false"
+          @timeupdate="handlePlayingUI"
+          @seeked="handleSeeked"
         ></audio>
       </v-card>
       <playlist-drawer
@@ -120,10 +126,11 @@ import PlaylistDrawer from './Playlist/index.vue';
 import '../styles/VPlayer.scss';
 
 type PlaylistItem = {
-  title: String;
-  authors: Array<String>;
-  duration: String;
-  src: String;
+  avatarSrc: string;
+  title: string;
+  authors: Array<string>;
+  duration: string;
+  src: string;
 };
 
 const formatTime = (second: number) =>
@@ -140,34 +147,32 @@ export default Vue.extend({
   },
   props: {
     // 歌曲信息
+    avatarSrc: String,
     title: String,
     authors: Array,
-    file: {
+    fileSrc: {
       type: String,
       default: null,
     },
+
     // 播放器设置
     autoPlay: {
       type: Boolean,
       default: false,
     },
+    preSong: {
+      type: Function,
+      default: () => {},
+    },
+    nextSong: {
+      type: Function,
+      default: () => {},
+    },
     ended: {
       type: Function,
       default: () => {},
     },
-    canPlay: {
-      type: Function,
-      default: () => {},
-    },
-    color: {
-      type: String,
-      default: null,
-    },
     downloadable: {
-      type: Boolean,
-      default: false,
-    },
-    stream: {
       type: Boolean,
       default: false,
     },
@@ -177,7 +182,15 @@ export default Vue.extend({
     },
 
     // UI配置
+    color: {
+      type: String,
+      default: null,
+    },
     flat: {
+      type: Boolean,
+      default: false,
+    },
+    stream: {
       type: Boolean,
       default: false,
     },
@@ -207,11 +220,19 @@ export default Vue.extend({
   },
   data() {
     return {
+      // 歌曲信息
+      localAvatarSrc: this.avatarSrc,
+      localTitle: this.title,
+      localAuthors: this.authors,
+      localFileSrc: this.fileSrc,
+
       firstPlay: true,
       isMuted: false,
+      loading: false,
       loaded: false,
       playing: false,
-      // paused: false,
+
+      localStream: false,
       percentage: 0,
       bufferPercentage: 0,
       nowBufferedIndex: 0,
@@ -223,23 +244,6 @@ export default Vue.extend({
 
       playlist: false,
       historyPlayListItems: this.historyPlaylistItemsInit as PlaylistItem[],
-      // [
-      //   {
-      //     title: '玫瑰花的葬礼',
-      //     authors: ['许嵩'],
-      //     duration: '3:40',
-      //   },
-      //   {
-      //     title: 'Hey KONG',
-      //     authors: ['KEY.L 刘聪', '$CC731'],
-      //     duration: '3:54',
-      //   },
-      //   {
-      //     title: '阿司匹林',
-      //     authors: ['王以太'],
-      //     duration: '4:40',
-      //   },
-      // ],
     };
   },
   watch: {
@@ -276,13 +280,18 @@ export default Vue.extend({
         this.isMuted = true;
       }
     },
-    file(oldValue) {
+    fileSrc(oldValue) {
+      this.localAvatarSrc = this.avatarSrc;
+      this.localTitle = this.title;
+      this.localAuthors = this.authors;
+      this.localFileSrc = this.fileSrc;
       /// handle playing
       this.stop();
       const playlistItem = {
+        avatarSrc: this.avatarSrc,
         title: this.title,
         authors: this.authors,
-        duration: '4:30',
+        duration: formatTime(this.totalDuration),
         src: oldValue,
       } as PlaylistItem;
       this.historyPlayListItems.unshift(playlistItem);
@@ -295,7 +304,6 @@ export default Vue.extend({
     },
     stop() {
       this.audio.pause();
-      // this.paused = true;
       this.playing = false;
       this.audio.currentTime = 0;
     },
@@ -304,23 +312,15 @@ export default Vue.extend({
       this.audio.play().then(() => {
         this.playing = true;
       });
-      // this.paused = false;
     },
     pause() {
-      // this.paused = !this.paused;
       if (!this.playing) return;
       this.audio.pause();
       this.playing = false;
-
-      // if (this.paused) {
-      //   this.audio.pause();
-      // } else {
-      //   this.audio.play();
-      // }
     },
     download() {
       // this.audio.pause();
-      window.open(this.file, 'download');
+      window.open(this.fileSrc, 'download');
     },
     mute() {
       this.isMuted = !this.isMuted;
@@ -335,9 +335,20 @@ export default Vue.extend({
     reload() {
       this.audio.load();
     },
-    preSong() {},
-    nextSong() {},
+    replay(index: number) {
+      const song = this.historyPlayListItems.splice(index, 1)[0];
+      this.localAvatarSrc = song.avatarSrc;
+      this.localTitle = song.title;
+      this.localAuthors = song.authors;
+      this.localFileSrc = song.src;
+      this.historyPlayListItems.unshift(song);
+      this.$emit('replay', song);
+    },
 
+    /// listener
+    handleCanPlay() {
+      this.loading = false;
+    },
     handleLoaded() {
       const audio = this.$refs.audio as HTMLAudioElement;
       if (audio.readyState >= 2) {
@@ -360,14 +371,12 @@ export default Vue.extend({
       }
     },
     handlePlayingUI() {
-      if (this.playing) return;
+      if (!this.playing) return;
       const audio = this.$refs.audio as HTMLAudioElement;
       this.percentage = (audio.currentTime / audio.duration) * 100;
       this.bufferPercentage =
         (audio.buffered.end(this.nowBufferedIndex) / audio.duration) * 100;
       this.currentTime = formatTime(audio.currentTime);
-
-      // this.playing = true;
     },
     handleSeeked() {
       const aduio = this.$refs.audio as HTMLAudioElement;
@@ -380,54 +389,6 @@ export default Vue.extend({
           this.nowBufferedIndex = i;
       }
     },
-    handlePlayPause(e: Event) {
-      const audio = this.$refs.audio as HTMLAudioElement;
-      if (e.type === 'play' && this.firstPlay) {
-        audio.currentTime = 0;
-        if (this.firstPlay) {
-          this.firstPlay = false;
-        }
-      }
-      if (
-        e.type === 'pause' &&
-        // this.paused === false &&
-        this.playing === false
-      ) {
-        this.currentTime = '00:00:00';
-      }
-    },
-    handleEnded() {
-      // this.paused = this.playing === false;
-    },
-    // handleKeydown(e: KeyboardEvent) {
-    //   console.log(e.key);
-    // },
-    init() {
-      this.audio.addEventListener('timeupdate', this.handlePlayingUI);
-      this.audio.addEventListener('seeked', this.handleSeeked);
-      this.audio.addEventListener('loadeddata', this.handleLoaded);
-      this.audio.addEventListener('pause', this.handlePlayPause);
-      this.audio.addEventListener('play', this.handlePlayPause);
-      this.audio.addEventListener('ended', this.handleEnded);
-
-      // document.getElementById('v-player')!.addEventListener('keydown', this.handleKeydown)
-      // this.audio.addEventListener('keydown', this.handleKeydown);
-    },
-    replay(index: number) {
-      const songs = this.historyPlayListItems.splice(index, 1);
-      this.historyPlayListItems.unshift(songs[0]);
-      // this.
-    },
-  },
-  mounted() {
-    this.init();
-  },
-  beforeDestroy() {
-    this.audio.removeEventListener('timeupdate', this.handlePlayingUI);
-    this.audio.removeEventListener('loadeddata', this.handleLoaded);
-    this.audio.removeEventListener('pause', this.handlePlayPause);
-    this.audio.removeEventListener('play', this.handlePlayPause);
-    this.audio.removeEventListener('ended', this.handleEnded);
   },
 });
 </script>
