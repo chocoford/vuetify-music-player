@@ -1,10 +1,16 @@
 <template>
   <v-list>
     <v-list-item
-      v-for="(item, index) in historyListItems"
+      v-for="(item, index) in listItems"
       :key="`item.title-${index}`"
-      :style="index % 2 === 0 ? `background: #dddddd` : ''"
-      @click="$emit('replay', index)"
+      :style="
+        index % 2 === 0
+          ? $vuetify.theme.light
+            ? `background: #dddddd`
+            : `background: #212121`
+          : ''
+      "
+      @click="$emit('play', index)"
     >
       <v-list-item-content>
         <v-list-item-title>{{ item.title }}</v-list-item-title>
@@ -25,8 +31,10 @@ import Vue from 'vue';
 export default Vue.extend({
   name: 'Playlist',
   props: {
-    futureListItems: Array,
-    historyListItems: Array,
+    listItems: {
+      type: Array,
+      default: () => [],
+    },
   },
 });
 </script>

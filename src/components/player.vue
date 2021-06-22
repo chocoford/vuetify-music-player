@@ -21,6 +21,7 @@
             <v-col md="4">
               <div class="d-flex justify-center">
                 <slot name="centerLeading" />
+                <!-- 上一首 -->
                 <v-btn
                   icon
                   class="ma-2 my-auto"
@@ -30,6 +31,7 @@
                 >
                   <v-icon>mdi-skip-previous</v-icon>
                 </v-btn>
+                <!-- 播放/暂停 -->
                 <v-btn
                   outlined
                   icon
@@ -41,11 +43,13 @@
                   <v-icon v-if="!playing">mdi-play</v-icon>
                   <v-icon v-else>mdi-pause</v-icon>
                 </v-btn>
+                <!-- 下一首 -->
                 <v-btn
                   icon
                   class="ma-2 my-auto"
                   :color="color"
                   @click="nextSong"
+                  :disabled="futurePlaylistItems.length === 0"
                   x-large
                 >
                   <v-icon>mdi-skip-next</v-icon>
@@ -90,7 +94,7 @@
             style="margin-top: 15px; margin-bottom: 15px"
             @click.native="setPosition()"
             :disabled="!loaded"
-            :stream="stream && localStream"
+            :stream="stream && localStream && !loading"
             :indeterminate="loading"
           ></v-progress-linear>
           <div>{{ currentTime }} / {{ duration }}</div>
@@ -112,7 +116,9 @@
       <playlist-drawer
         :drawer.sync="playlist"
         :historyPlayListItems="historyPlayListItems"
+        :futurePlaylistItems="localFuturePlaylistItems"
         @replay="replay"
+        @cutIn="cutIn"
       />
     </div>
   </v-fade-transition>
@@ -120,6 +126,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import Themeable from 'vuetify/lib/mixins/themeable';
 import PlaylistDrawer from './Playlist/index.vue';
 
 // Styles
@@ -130,7 +137,7 @@ type PlaylistItem = {
   title: string;
   authors: Array<string>;
   duration: string;
-  src: string;
+  fileSrc: string;
 };
 
 const formatTime = (second: number) =>
@@ -138,6 +145,7 @@ const formatTime = (second: number) =>
 
 export default Vue.extend({
   name: 'VuetifyPlayer',
+  mixins: [Themeable],
   components: {
     PlaylistDrawer,
   },
@@ -160,14 +168,6 @@ export default Vue.extend({
       type: Boolean,
       default: false,
     },
-    preSong: {
-      type: Function,
-      default: () => {},
-    },
-    nextSong: {
-      type: Function,
-      default: () => {},
-    },
     ended: {
       type: Function,
       default: () => {},
@@ -175,6 +175,10 @@ export default Vue.extend({
     downloadable: {
       type: Boolean,
       default: false,
+    },
+    futurePlaylistItems: {
+      type: Array,
+      default: () => [] as PlaylistItem[],
     },
     historyPlaylistItemsInit: {
       type: Array,
@@ -243,6 +247,7 @@ export default Vue.extend({
       volumeBeforeMuted: 0.5,
 
       playlist: false,
+      localFuturePlaylistItems: this.futurePlaylistItems as PlaylistItem[],
       historyPlayListItems: this.historyPlaylistItemsInit as PlaylistItem[],
     };
   },
@@ -281,24 +286,51 @@ export default Vue.extend({
       }
     },
     fileSrc(oldValue) {
-      this.localAvatarSrc = this.avatarSrc;
-      this.localTitle = this.title;
-      this.localAuthors = this.authors;
-      this.localFileSrc = this.fileSrc;
-      /// handle playing
-      this.stop();
-      const playlistItem = {
+      const song = {
         avatarSrc: this.avatarSrc,
         title: this.title,
         authors: this.authors,
-        duration: formatTime(this.totalDuration),
-        src: oldValue,
+        duration: '',
+        fileSrc: oldValue,
       } as PlaylistItem;
-      this.historyPlayListItems.unshift(playlistItem);
+      this.playSong(song);
       this.audio.autoplay = true;
+    },
+    localFileSrc() {
+      console.log('localFileSrc did Changed.');
+      this.loaded = false;
+      this.loading = true;
+      this.stop();
+    },
+    loaded(newValue) {
+      if (newValue) {
+        console.log('loaded.');
+
+        /// add to history list.
+        this.historyPlayListItems.unshift({
+          avatarSrc: this.localAvatarSrc,
+          title: this.localTitle,
+          authors: this.localAuthors,
+          duration: formatTime(this.totalDuration),
+          fileSrc: this.localFileSrc,
+        });
+        /// stop loading
+        this.loading = false;
+      }
     },
   },
   methods: {
+    preSong() {
+      if (this.percentage < 1) {
+        this.replay(1);
+      } else {
+        this.replay(0);
+      }
+    },
+    nextSong() {
+      const song = this.localFuturePlaylistItems.shift() as PlaylistItem;
+      this.playSong(song);
+    },
     setPosition() {
       this.audio.currentTime = (this.audio.duration / 100) * this.percentage;
     },
@@ -335,14 +367,32 @@ export default Vue.extend({
     reload() {
       this.audio.load();
     },
+    /// 重播某个歌曲
     replay(index: number) {
-      const song = this.historyPlayListItems.splice(index, 1)[0];
+      if (index === 0) {
+        this.audio.currentTime = 0;
+      } else {
+        const song = this.historyPlayListItems.splice(index, 1)[0];
+        this.playSong(song);
+        this.audio.autoplay = true;
+        this.$emit('replay', song);
+      }
+    },
+    /// 插播某个歌曲
+    cutIn(index: number) {
+      const song = this.localFuturePlaylistItems.splice(index, 1)[0];
+      this.playSong(song);
+      this.audio.autoplay = true;
+      this.$emit('cutIn', song);
+    },
+    /// 播放歌曲
+    playSong(song: PlaylistItem) {
+      // console.log('playSong');
+      this.audio.currentTime = 0;
       this.localAvatarSrc = song.avatarSrc;
       this.localTitle = song.title;
       this.localAuthors = song.authors;
-      this.localFileSrc = song.src;
-      this.historyPlayListItems.unshift(song);
-      this.$emit('replay', song);
+      this.localFileSrc = `${song.fileSrc}?t=+${Math.random()}`;
     },
 
     /// listener
@@ -350,6 +400,7 @@ export default Vue.extend({
       this.loading = false;
     },
     handleLoaded() {
+      console.log('handleLoadded');
       const audio = this.$refs.audio as HTMLAudioElement;
       if (audio.readyState >= 2) {
         if (audio.duration === Infinity) {
@@ -359,12 +410,11 @@ export default Vue.extend({
             audio.currentTime = 0;
             this.totalDuration = (this.$refs
               .audio as HTMLAudioElement).duration;
-            this.loaded = true;
           };
         } else {
           this.totalDuration = audio.duration;
-          this.loaded = true;
         }
+        this.loaded = true;
         if (this.autoPlay) audio.play();
       } else {
         throw new Error('Failed to load sound file');

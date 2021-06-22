@@ -8,12 +8,17 @@
         >
           <template v-slot:prepend>
             <v-container>
-              <v-row align="center">
-                <v-list-item-content>
-                  <v-list-item-title>播放列表</v-list-item-title>
-                </v-list-item-content>
-                <!-- <v-spacer /> -->
-                <v-btn icon @click="$emit('update:drawer', false)">
+              <v-row align="center" justify="center">
+                <v-tabs centered v-model="tab">
+                  <v-tab>播放列表</v-tab>
+                  <v-tab>历史记录</v-tab>
+                </v-tabs>
+                <v-btn
+                  icon
+                  @click="$emit('update:drawer', false)"
+                  absolute
+                  right
+                >
                   <v-icon>mdi-close</v-icon>
                 </v-btn>
               </v-row>
@@ -23,7 +28,18 @@
           <v-divider></v-divider>
 
           <!-- 播放列表 -->
-          <playlist :historyListItems="historyPlayListItems" @replay="replay" />
+          <v-fade-transition mode="out-in">
+            <playlist
+              v-if="tab == 0"
+              :listItems="futurePlaylistItems"
+              @play="cutIn"
+            />
+            <playlist
+              v-if="tab == 1"
+              :listItems="historyPlayListItems"
+              @play="replay"
+            />
+          </v-fade-transition>
         </v-navigation-drawer>
       </v-card>
     </v-slide-x-reverse-transition>
@@ -41,12 +57,24 @@ export default Vue.extend({
   components: { Playlist },
   props: {
     drawer: Boolean,
-    historyPlayListItems: Array,
+    futurePlaylistItems: {
+      type: Array,
+      default: () => [],
+    },
+    historyPlayListItems: {
+      type: Array,
+      default: () => [],
+    },
   },
-  data: () => ({}),
+  data: () => ({
+    tab: 0,
+  }),
   methods: {
     replay(index: number) {
       this.$emit('replay', index);
+    },
+    cutIn(index: number) {
+      this.$emit('cutIn', index);
     },
   },
 });
