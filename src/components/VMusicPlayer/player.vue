@@ -132,7 +132,7 @@ import Themeable from 'vuetify/lib/mixins/themeable';
 import PlaylistDrawer from './Playlist/index.vue';
 
 // Styles
-import '../styles/VPlayer.scss';
+import '@/styles/VPlayer.scss';
 
 type PlaylistItem = {
   avatarSrc: string;
@@ -301,7 +301,6 @@ export default Vue.extend({
       this.audio.autoplay = true;
     },
     localFileSrc() {
-      console.log('localFileSrc did Changed.');
       this.loaded = false;
       this.loading = true;
       this.stop();
@@ -309,13 +308,13 @@ export default Vue.extend({
     loaded(newValue) {
       if (newValue)
         if (this.needHistoryFlag) {
-          console.log('loaded.');
+          // console.log('loaded.');
 
           /// add to history list.
           this.historyPlayListItems.unshift({
             avatarSrc: this.localAvatarSrc,
             title: this.localTitle,
-            authors: this.localAuthors,
+            authors: this.localAuthors as string[],
             duration: formatTime(this.totalDuration),
             fileSrc: this.localFileSrc,
           });
@@ -406,7 +405,7 @@ export default Vue.extend({
       this.loading = false;
     },
     handleLoaded() {
-      console.log('handleLoadded');
+      // console.log('handleLoadded');
       const audio = this.$refs.audio as HTMLAudioElement;
       if (audio.readyState >= 2) {
         if (audio.duration === Infinity) {

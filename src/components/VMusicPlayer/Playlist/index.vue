@@ -50,7 +50,7 @@
 import Vue from 'vue';
 import Playlist from './components/Playlist.vue';
 
-import '../../styles/PlaylistDrawer.scss';
+import '@/styles/PlaylistDrawer.scss';
 
 export default Vue.extend({
   name: 'PlaylistDrawer',

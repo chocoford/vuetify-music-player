@@ -1,7 +1,26 @@
 {
-  "name": "vuetify-player",
-  "version": "0.1.0",
-  "private": true,
+  "name": "vuetify-music-player",
+  "description": "Music Player based on Vuetify Framework.",
+  "version": "0.0.1",
+  "author": {
+    "name": "Chocoford",
+    "email": "504001583@qq.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/chocoford/vuetify-bar-music-player",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chocoford/vuetify-bar-music-player.git"
+  },
+  "keywords": [
+    "vuetify",
+    "music player"
+  ],
+  "bugs": {
+    "url": "https://github.com/chocoford/vuetify-bar-music-player/issues"
+  },
+  "main": "dist/vuetify-music-player.js",
+  "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
