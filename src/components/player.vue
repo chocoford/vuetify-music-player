@@ -27,6 +27,7 @@
                   class="ma-2 my-auto"
                   :color="color"
                   @click="preSong"
+                  :disabled="historyPlayListItems.length === 0"
                   x-large
                 >
                   <v-icon>mdi-skip-previous</v-icon>
@@ -38,6 +39,7 @@
                   class="ma-2 my-auto"
                   :color="color"
                   @click.native="playing ? pause() : play()"
+                  :disabled="localFileSrc === null"
                   x-large
                 >
                   <v-icon v-if="!playing">mdi-play</v-icon>
@@ -49,7 +51,7 @@
                   class="ma-2 my-auto"
                   :color="color"
                   @click="nextSong"
-                  :disabled="futurePlaylistItems.length === 0"
+                  :disabled="localFuturePlaylistItems.length === 0"
                   x-large
                 >
                   <v-icon>mdi-skip-next</v-icon>
@@ -249,6 +251,8 @@ export default Vue.extend({
       playlist: false,
       localFuturePlaylistItems: this.futurePlaylistItems as PlaylistItem[],
       historyPlayListItems: this.historyPlaylistItemsInit as PlaylistItem[],
+
+      needHistoryFlag: true,
     };
   },
   watch: {
@@ -303,28 +307,33 @@ export default Vue.extend({
       this.stop();
     },
     loaded(newValue) {
-      if (newValue) {
-        console.log('loaded.');
+      if (newValue)
+        if (this.needHistoryFlag) {
+          console.log('loaded.');
 
-        /// add to history list.
-        this.historyPlayListItems.unshift({
-          avatarSrc: this.localAvatarSrc,
-          title: this.localTitle,
-          authors: this.localAuthors,
-          duration: formatTime(this.totalDuration),
-          fileSrc: this.localFileSrc,
-        });
-        /// stop loading
-        this.loading = false;
-      }
+          /// add to history list.
+          this.historyPlayListItems.unshift({
+            avatarSrc: this.localAvatarSrc,
+            title: this.localTitle,
+            authors: this.localAuthors,
+            duration: formatTime(this.totalDuration),
+            fileSrc: this.localFileSrc,
+          });
+          /// stop loading
+          this.loading = false;
+        } else {
+          this.needHistoryFlag = true;
+        }
     },
   },
   methods: {
     preSong() {
+      this.needHistoryFlag = false;
+      this.play();
       if (this.percentage < 1) {
-        this.replay(1);
-      } else {
         this.replay(0);
+      } else {
+        this.audio.currentTime = 0;
       }
     },
     nextSong() {
@@ -369,14 +378,11 @@ export default Vue.extend({
     },
     /// 重播某个歌曲
     replay(index: number) {
-      if (index === 0) {
-        this.audio.currentTime = 0;
-      } else {
-        const song = this.historyPlayListItems.splice(index, 1)[0];
-        this.playSong(song);
-        this.audio.autoplay = true;
-        this.$emit('replay', song);
-      }
+      const song = this.historyPlayListItems.splice(index, 1)[0];
+      this.localFuturePlaylistItems.unshift(song);
+      this.playSong(song);
+      this.audio.autoplay = true;
+      this.$emit('replay', song);
     },
     /// 插播某个歌曲
     cutIn(index: number) {
