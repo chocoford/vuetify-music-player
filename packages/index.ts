@@ -1,5 +1,7 @@
 import { VueConstructor } from 'vue';
-import * as components from './components';
+import { VMusicPlayer } from './VMusicPlayer';
+
+const components = [VMusicPlayer];
 
 const install = (vue: VueConstructor) => {
   if ((install as any).installed) return;
@@ -8,6 +10,12 @@ const install = (vue: VueConstructor) => {
   });
 };
 
+// Auto-install when vue is found (eg. in browser via <script> tag)
 if (typeof window !== 'undefined' && window.Vue) {
   install(window.Vue);
 }
+
+export default {
+  install,
+  VMusicPlayer,
+};

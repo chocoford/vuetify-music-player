@@ -132,7 +132,7 @@ import Themeable from 'vuetify/lib/mixins/themeable';
 import PlaylistDrawer from './Playlist/index.vue';
 
 // Styles
-import '@/styles/VPlayer.scss';
+import '../styles/VPlayer.scss';
 
 type PlaylistItem = {
   avatarSrc: string;

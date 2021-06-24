@@ -2,6 +2,7 @@
 node_modules
 /dist
 /public
+/examples
 
 # local env files
 .env.local

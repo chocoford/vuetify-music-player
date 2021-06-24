@@ -1,47 +1,50 @@
 {
   "name": "vuetify-music-player",
   "description": "Music Player based on Vuetify Framework.",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "author": {
     "name": "Chocoford",
     "email": "504001583@qq.com"
   },
   "license": "MIT",
-  "homepage": "https://github.com/chocoford/vuetify-bar-music-player",
+  "homepage": "https://github.com/chocoford/vuetify-music-player",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chocoford/vuetify-bar-music-player.git"
+    "url": "git+https://github.com/chocoford/vuetify-music-player.git"
   },
   "keywords": [
     "vuetify",
     "music player"
   ],
   "bugs": {
-    "url": "https://github.com/chocoford/vuetify-bar-music-player/issues"
+    "url": "https://github.com/chocoford/vuetify-music-player/issues"
   },
-  "main": "dist/vuetify-music-player.js",
+  "main": "dist/vuetify-music-player.umd.min.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "packages/",
+    "dist/",
+    "types/"
+  ],
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build-bundle": "vue-cli-service build --target lib --name vuetify-music-player ./packages/index.ts",
     "lint": "vue-cli-service lint"
   },
-  "dependencies": {
+  "devDependencies": {
+    "sass": "^1.35.0",
+    "sass-loader": "^10.1.1",
+    "core-js": "^3.6.5",
+    "vue-property-decorator": "^9.1.2",
+    "vue-class-component": "^7.2.3",
     "@vue/eslint-config-airbnb": "^5.3.0",
     "babel-eslint": "^10.1.0",
-    "core-js": "^3.6.5",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.4.0",
     "prettier": "^2.2.1",
-    "sass": "^1.35.0",
-    "sass-loader": "^10.1.1",
-    "vue": "^2.6.11",
-    "vue-class-component": "^7.2.3",
-    "vue-property-decorator": "^9.1.2",
-    "vuetify": "^2.4.11"
-  },
-  "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -53,6 +56,11 @@
     "eslint-plugin-vue": "^6.2.2",
     "typescript": "~4.1.5",
     "vue-template-compiler": "^2.6.11"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "vue": "*",
+    "vuetify": "*"
   },
   "browserslist": [
     "> 1%",
