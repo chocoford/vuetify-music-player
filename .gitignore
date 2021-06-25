@@ -1,7 +1,8 @@
 .DS_Store
 node_modules
 /dist
-/public
+/public/favicon.ico
+/public/index.html
 /examples
 
 # local env files
