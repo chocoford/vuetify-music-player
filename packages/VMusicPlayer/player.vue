@@ -4,6 +4,7 @@
       <v-card
         style="text-align: center"
         :flat="flat == undefined || flat == false ? false : true"
+        tile
       >
         <v-card-text>
           <v-row align="center" justify="space-between">
@@ -132,7 +133,7 @@ import '../styles/VPlayer.scss';
 type PlaylistItem = {
   avatarSrc: string;
   title: string;
-  authors: Array<string>;
+  authors: string[];
   duration: string;
   fileSrc: string;
 };
@@ -220,6 +221,15 @@ export default Vue.extend({
     },
     audio(): HTMLAudioElement {
       return this.$refs.audio as HTMLAudioElement;
+    },
+    nowPlayingSong(): PlaylistItem {
+      return {
+        avatarSrc: this.localAvatarSrc,
+        title: this.localTitle,
+        authors: this.localAuthors as string[],
+        duration: formatTime(this.totalDuration),
+        fileSrc: this.localFileSrc,
+      };
     },
   },
   data() {
