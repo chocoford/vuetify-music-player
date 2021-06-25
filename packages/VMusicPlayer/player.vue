@@ -18,46 +18,41 @@
                 </div>
               </div>
             </v-col>
-            <v-col md="4">
-              <div class="d-flex justify-center">
-                <slot name="centerLeading" />
-                <!-- 上一首 -->
-                <v-btn
-                  icon
-                  class="ma-2 my-auto"
-                  :color="color"
-                  @click="preSong"
-                  :disabled="historyPlayListItems.length === 0"
-                  x-large
-                >
-                  <v-icon>mdi-skip-previous</v-icon>
-                </v-btn>
-                <!-- 播放/暂停 -->
-                <v-btn
-                  outlined
-                  icon
-                  class="ma-2 my-auto"
-                  :color="color"
-                  @click.native="playing ? pause() : play()"
-                  :disabled="localFileSrc === null"
-                  x-large
-                >
-                  <v-icon v-if="!playing">mdi-play</v-icon>
-                  <v-icon v-else>mdi-pause</v-icon>
-                </v-btn>
-                <!-- 下一首 -->
-                <v-btn
-                  icon
-                  class="ma-2 my-auto"
-                  :color="color"
-                  @click="nextSong"
-                  :disabled="localFuturePlaylistItems.length === 0"
-                  x-large
-                >
-                  <v-icon>mdi-skip-next</v-icon>
-                </v-btn>
-                <slot name="centerTrailing" />
-              </div>
+            <v-col md="4" class="d-flex justify-center">
+              <slot name="centerLeading" />
+              <!-- 上一首 -->
+              <v-btn
+                icon
+                :color="color"
+                @click="preSong"
+                :disabled="historyPlayListItems.length === 0"
+                x-large
+              >
+                <v-icon>mdi-skip-previous</v-icon>
+              </v-btn>
+              <!-- 播放/暂停 -->
+              <v-btn
+                outlined
+                icon
+                :color="color"
+                @click.native="playing ? pause() : play()"
+                :disabled="localFileSrc === null"
+                x-large
+              >
+                <v-icon v-if="!playing">mdi-play</v-icon>
+                <v-icon v-else>mdi-pause</v-icon>
+              </v-btn>
+              <!-- 下一首 -->
+              <v-btn
+                icon
+                :color="color"
+                @click="nextSong"
+                :disabled="localFuturePlaylistItems.length === 0"
+                x-large
+              >
+                <v-icon>mdi-skip-next</v-icon>
+              </v-btn>
+              <slot name="centerTrailing" />
             </v-col>
             <v-col md="4" class="d-flex justify-start my-auto">
               <v-slider
@@ -69,10 +64,10 @@
                 min="0"
                 hide-details
               ></v-slider>
+              <slot name="right" />
               <v-btn icon disabled>
                 <v-icon>mdi-file-music</v-icon>
               </v-btn>
-              <slot name="right" />
               <v-btn icon @click="playlist = !playlist">
                 <v-icon>mdi-playlist-play</v-icon>
               </v-btn>
@@ -146,7 +141,7 @@ const formatTime = (second: number) =>
   new Date(second * 1000).toISOString().substr(11, 8);
 
 export default Vue.extend({
-  name: 'VuetifyPlayer',
+  name: 'v-music-player',
   mixins: [Themeable],
   components: {
     PlaylistDrawer,
@@ -159,10 +154,21 @@ export default Vue.extend({
     // 歌曲信息
     avatarSrc: String,
     title: String,
-    authors: Array,
+    authors: {
+      type: Array,
+      default: () => [],
+    },
     fileSrc: {
       type: String,
       default: null,
+    },
+    futurePlaylistItems: {
+      type: Array,
+      default: () => [] as PlaylistItem[],
+    },
+    historyPlaylistItemsInit: {
+      type: Array,
+      default: () => [] as PlaylistItem[],
     },
 
     // 播放器设置
@@ -177,14 +183,6 @@ export default Vue.extend({
     downloadable: {
       type: Boolean,
       default: false,
-    },
-    futurePlaylistItems: {
-      type: Array,
-      default: () => [] as PlaylistItem[],
-    },
-    historyPlaylistItemsInit: {
-      type: Array,
-      default: () => [] as PlaylistItem[],
     },
 
     // UI配置

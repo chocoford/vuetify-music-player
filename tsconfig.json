@@ -30,12 +30,11 @@
     ]
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
-, "examples/shims-tsx.d.ts", "packages/index.ts"  ],
+    "packages",
+    "examples",
+    "examples/shims-tsx.d.ts",
+    "packages/index.ts"
+  ],
   "exclude": [
     "node_modules"
   ],
