@@ -1,9 +1,7 @@
 # vuetify-music-player
 
 ![](https://img.shields.io/github/checks-status/chocoford/vuetify-music-player/master)
-
 ![](https://img.shields.io/npm/v/vuetify-music-player)
-
 ![GitHub](https://img.shields.io/github/license/chocoford/vuetify-music-player)
 
 ## 界面
