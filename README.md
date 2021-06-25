@@ -8,7 +8,7 @@
 
 ## Demo&Docs
 
-[Docs]()
+[Docs](https://chocoford.github.io/vuetify-music-player/)
 
 ## 安装
 
