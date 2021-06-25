@@ -80,7 +80,7 @@
               >
                 <v-icon>mdi-download</v-icon>
               </v-btn>
-              <v-btn icon :color="color" @click="$emit('change', false)">
+              <v-btn icon :color="color" @click="closePlayer">
                 <v-icon>mdi-close-box</v-icon>
               </v-btn>
             </v-col>
@@ -298,6 +298,9 @@ export default Vue.extend({
       }
     },
     fileSrc(oldValue) {
+      this.audio.autoplay = true;
+      if (this.localFileSrc !== null && this.loaded)
+        this.historyPlayListItems.unshift(this.nowPlayingSong);
       const song = {
         avatarSrc: this.avatarSrc,
         title: this.title,
@@ -306,31 +309,11 @@ export default Vue.extend({
         fileSrc: oldValue,
       } as PlaylistItem;
       this.playSong(song);
-      this.audio.autoplay = true;
     },
     localFileSrc() {
       this.loaded = false;
       this.loading = true;
       this.stop();
-    },
-    loaded(newValue) {
-      if (newValue)
-        if (this.needHistoryFlag) {
-          // console.log('loaded.');
-
-          /// add to history list.
-          this.historyPlayListItems.unshift({
-            avatarSrc: this.localAvatarSrc,
-            title: this.localTitle,
-            authors: this.localAuthors as string[],
-            duration: formatTime(this.totalDuration),
-            fileSrc: this.localFileSrc,
-          });
-          /// stop loading
-          this.loading = false;
-        } else {
-          this.needHistoryFlag = true;
-        }
     },
   },
   methods: {
@@ -338,13 +321,16 @@ export default Vue.extend({
       this.needHistoryFlag = false;
       this.play();
       if (this.percentage < 1) {
-        this.replay(0);
+        const song = this.historyPlayListItems.shift() as PlaylistItem;
+        this.localFuturePlaylistItems.unshift(this.nowPlayingSong);
+        this.playSong(song);
       } else {
         this.audio.currentTime = 0;
       }
     },
     nextSong() {
       const song = this.localFuturePlaylistItems.shift() as PlaylistItem;
+      this.historyPlayListItems.unshift(this.nowPlayingSong);
       this.playSong(song);
     },
     setPosition() {
@@ -386,7 +372,7 @@ export default Vue.extend({
     /// 重播某个歌曲
     replay(index: number) {
       const song = this.historyPlayListItems.splice(index, 1)[0];
-      this.localFuturePlaylistItems.unshift(song);
+      this.historyPlayListItems.unshift(this.nowPlayingSong);
       this.playSong(song);
       this.audio.autoplay = true;
       this.$emit('replay', song);
@@ -406,6 +392,10 @@ export default Vue.extend({
       this.localTitle = song.title;
       this.localAuthors = song.authors;
       this.localFileSrc = `${song.fileSrc}?t=+${Math.random()}`;
+    },
+    closePlayer() {
+      this.stop();
+      this.$emit('change', false);
     },
 
     /// listener
@@ -428,6 +418,7 @@ export default Vue.extend({
           this.totalDuration = audio.duration;
         }
         this.loaded = true;
+        this.loading = false;
         if (this.autoPlay) audio.play();
       } else {
         throw new Error('Failed to load sound file');
