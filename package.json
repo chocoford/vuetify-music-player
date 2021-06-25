@@ -30,6 +30,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build-Docs": "vue-cli-service build --target app --name vuetify-music-player --dest docs ./examples/App.vue",
     "build-bundle": "vue-cli-service build --target lib --name vuetify-music-player ./packages/index.ts",
     "lint": "vue-cli-service lint"
   },
