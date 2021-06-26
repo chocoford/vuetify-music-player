@@ -6,11 +6,21 @@
         :flat="flat == undefined || flat == false ? false : true"
         tile
       >
+        <v-progress-linear
+          v-if="$vuetify.breakpoint.smAndDown"
+          @click.native="setPosition()"
+          v-model="percentage"
+          :buffer-value="bufferPercentage"
+          height="2"
+          :stream="stream && localStream && !loading"
+          :indeterminate="loading"
+          :disabled="!loaded"
+        ></v-progress-linear>
         <v-card-text>
           <v-row align="center" justify="space-between">
-            <v-col md="4">
+            <v-col md="4" sm="8">
               <div class="d-flex justify-start">
-                <v-avatar rounded size="60">
+                <v-avatar rounded :size="$vuetify.breakpoint.mdAndUp ? 60 : 48">
                   <v-img :src="localAvatarSrc"></v-img>
                 </v-avatar>
                 <div class="d-flex-column ml-3 text-start my-auto">
@@ -33,7 +43,7 @@
               </v-btn>
               <!-- 播放/暂停 -->
               <v-btn
-                outlined
+                :outlined="$vuetify.breakpoint.mdAndUp"
                 icon
                 :color="color"
                 @click.native="playing ? pause() : play()"
@@ -55,8 +65,13 @@
               </v-btn>
               <slot name="centerTrailing" />
             </v-col>
-            <v-col md="4" class="d-flex justify-start my-auto">
+            <v-col
+              v-if="$vuetify.breakpoint.mdAndUp"
+              md="4"
+              class="d-flex justify-end my-auto"
+            >
               <v-slider
+                v-if="!$vuetify.breakpoint.mobile"
                 v-model="volume"
                 :prepend-icon="isMuted ? 'mdi-volume-mute' : 'mdi-volume-high'"
                 @click:prepend="mute"
@@ -86,16 +101,19 @@
             </v-col>
           </v-row>
           <v-progress-linear
+            v-if="$vuetify.breakpoint.mdAndUp"
             v-model="percentage"
+            @click.native="setPosition()"
             :buffer-value="bufferPercentage"
             height="5"
-            style="margin-top: 15px; margin-bottom: 15px"
-            @click.native="setPosition()"
-            :disabled="!loaded"
             :stream="stream && localStream && !loading"
             :indeterminate="loading"
+            :disabled="!loaded"
+            class="my-3"
           ></v-progress-linear>
-          <div>{{ currentTime }} / {{ duration }}</div>
+          <div v-if="$vuetify.breakpoint.mdAndUp">
+            {{ currentTime }} / {{ duration }}
+          </div>
         </v-card-text>
 
         <audio

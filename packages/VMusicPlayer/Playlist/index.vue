@@ -1,7 +1,7 @@
 <template>
   <aside class="player-playlist player-playlist--fixed player-playlist--right">
-    <!-- card才有那个边边 -->
     <v-slide-x-reverse-transition>
+      <!-- card才有那个边边 -->
       <v-card v-show="drawer">
         <v-navigation-drawer
           style="min-width: 400px; min-height: 600px; max-height: 66vh"
