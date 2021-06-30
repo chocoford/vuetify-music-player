@@ -1,7 +1,7 @@
 {
   "name": "vuetify-music-player",
   "description": "Music Player based on Vuetify Framework.",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": {
     "name": "Chocoford",
     "email": "504001583@qq.com"
@@ -35,33 +35,37 @@
     "lint": "vue-cli-service lint"
   },
   "devDependencies": {
-    "sass": "^1.35.0",
-    "sass-loader": "^10.1.1",
-    "core-js": "^3.6.5",
-    "vue-property-decorator": "^9.1.2",
-    "vue-class-component": "^7.2.3",
-    "@vue/eslint-config-airbnb": "^5.3.0",
-    "babel-eslint": "^10.1.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-prettier": "^3.4.0",
-    "prettier": "^2.2.1",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-typescript": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
+    "@vue/eslint-config-airbnb": "^5.3.0",
     "@vue/eslint-config-typescript": "^7.0.0",
+    "babel-eslint": "^10.1.0",
+    "core-js": "^3.6.5",
     "eslint": "^6.7.2",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-vue": "^6.2.2",
+    "prettier": "^2.2.1",
+    "sass": "^1.35.0",
+    "sass-loader": "^10.1.1",
     "typescript": "~4.1.5",
-    "vue-template-compiler": "^2.6.11"
+    "vue": "^2.6.14",
+    "vue-class-component": "^7.2.3",
+    "vue-property-decorator": "^9.1.2",
+    "vue-template-compiler": "^2.6.14",
+    "vuetify": "^2.5.5",
+    "vuex": "^3.6.2"
   },
   "dependencies": {},
   "peerDependencies": {
-    "vue": "*",
-    "vuetify": "*"
+    "vue": "^2.6.14",
+    "vuetify": "^2.5.5",
+    "vuex": "^3.6.2"
   },
   "browserslist": [
     "> 1%",

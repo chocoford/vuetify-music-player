@@ -147,6 +147,7 @@ import PlaylistDrawer from './Playlist/index.vue';
 
 // Styles
 import '../styles/VPlayer.scss';
+import store from '../store';
 
 type PlaylistItem = {
   avatarSrc: string;
@@ -170,17 +171,6 @@ export default Vue.extend({
     event: 'change',
   },
   props: {
-    // 歌曲信息
-    avatarSrc: String,
-    title: String,
-    authors: {
-      type: Array,
-      default: () => [],
-    },
-    fileSrc: {
-      type: String,
-      default: null,
-    },
     futurePlaylistItems: {
       type: Array,
       default: () => [] as PlaylistItem[],
@@ -249,14 +239,17 @@ export default Vue.extend({
         fileSrc: this.localFileSrc,
       };
     },
+    songInfo(): any {
+      return store.getters['player/songInfo'];
+    },
   },
   data() {
     return {
       // 歌曲信息
-      localAvatarSrc: this.avatarSrc,
-      localTitle: this.title,
-      localAuthors: this.authors,
-      localFileSrc: this.fileSrc,
+      localAvatarSrc: '', // this.avatarSrc,
+      localTitle: '', // this.title,
+      localAuthors: [] as string[],
+      localFileSrc: '',
 
       firstPlay: true,
       isMuted: false,
@@ -315,23 +308,11 @@ export default Vue.extend({
         this.isMuted = true;
       }
     },
-    fileSrc(oldValue) {
+    songInfo(newValue) {
       this.audio.autoplay = true;
       if (this.localFileSrc !== null && this.loaded)
         this.historyPlayListItems.unshift(this.nowPlayingSong);
-      const song = {
-        avatarSrc: this.avatarSrc,
-        title: this.title,
-        authors: this.authors,
-        duration: '',
-        fileSrc: oldValue,
-      } as PlaylistItem;
-      this.playSong(song);
-    },
-    localFileSrc() {
-      this.loaded = false;
-      this.loading = true;
-      this.stop();
+      this.playSong(newValue);
     },
   },
   methods: {
@@ -372,7 +353,7 @@ export default Vue.extend({
     },
     download() {
       // this.audio.pause();
-      window.open(this.fileSrc, 'download');
+      // window.open(this.fileSrc, 'download');
     },
     mute() {
       this.isMuted = !this.isMuted;
@@ -404,12 +385,15 @@ export default Vue.extend({
     },
     /// 播放歌曲
     playSong(song: PlaylistItem) {
-      // console.log('playSong');
+      if (!this.show) this.$emit('change', true);
       this.audio.currentTime = 0;
       this.localAvatarSrc = song.avatarSrc;
       this.localTitle = song.title;
       this.localAuthors = song.authors;
       this.localFileSrc = `${song.fileSrc}?t=+${Math.random()}`;
+      this.loaded = false;
+      this.loading = true;
+      this.stop();
     },
     closePlayer() {
       this.stop();
