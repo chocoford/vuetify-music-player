@@ -31,29 +31,31 @@ export default Vue.extend({
 
 ## 使用
 
+#### 安装
+
 ```typescript
-<v-music-player
-    v-model="player"
-    :avatarSrc="..."
-    :fileSrc="..."
-    :stream="true"
-    :title="..."
-    :authors="[...]"
-    :historyPlaylistItemsInit="[]"
-    :futurePlaylistItems="[]"
-    bottom
-    fixed
-    dark
-  />
+// in main.ts(main.js)
+import VMusicPlayer from 'vuetify-music-player';
+Vue.use(VMusicPlayer);
+...
+```
+
+### 全局播放
+
+```typescript
+// in your any *.vue file.
+this.$player.play({
+  avatarSrc: ...,
+  title: ...,
+  authors: ...,
+  fileSrc: ...,
+})
 ```
 
 ## 选项
 
 * `dark`: 指定主题
 * `show`: 指定是否显示
-* `avatarSrc`: 指定图片路径
-* `fileSrc`: 指定歌曲文件路径
-* `Authors`: 指定歌手（以Array形式）
 * `futurePlaylistItems`: 播放列表
 * `historyPlaylistItemsInit`: 初始历史记录
 * `fixed`
@@ -65,8 +67,49 @@ export default Vue.extend({
 * `centerTrailing`: 播放栏右侧位置
 * `right`: 音量调节右侧位置
 
+## 示例
+
+```vue
+
+<template>
+  <v-music-player v-model="player" bottom fixed :dark="dark">
+    <template #centerLeading v-if="centerLeading">
+      <v-btn icon class="my-auto"><v-icon>mdi-heart</v-icon></v-btn>
+    </template>
+    <template #centerTrailing v-if="centerTrailing">
+      <v-btn icon class="my-auto"><v-icon>mdi-share</v-icon></v-btn>
+    </template>
+    <template #right v-if="right">
+      <v-btn icon class="my-auto"><v-icon>mdi-shuffle-variant</v-icon></v-btn>
+    </template>
+  </v-music-player>
+</template>
+
+
+<script lang="ts">
+  ...
+  import { Component, Vue } from 'vue-property-decorator';
+
+  @Component({
+    data: () => ({
+      player: false,
+      ...
+    }),
+    methods: {
+      play(song: any) {
+        this.$player.play(song)
+      }
+    },
+    ...
+  })
+...
+      
+```
+
+
 
 ## 基本思路
+
 ```mermaid
 graph LR;
 			外部文件改变--放入历史记录tag=true-->play((播放));
