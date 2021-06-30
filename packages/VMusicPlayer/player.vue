@@ -240,7 +240,7 @@ export default Vue.extend({
       };
     },
     songInfo(): any {
-      return store.getters['player/songInfo'];
+      return store.getters['_vuetifyMusicPlayer/songInfo'];
     },
   },
   data() {

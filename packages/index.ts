@@ -23,7 +23,7 @@ const install = (Vue: VueConstructor, globalOptions: any = {}) => {
   // eslint-disable-next-line no-param-reassign
   Vue.prototype.$player = {
     play: (songInfo: any) => {
-      store.commit('player/changeSong', songInfo);
+      store.commit('_vuetifyMusicPlayer/changeSong', songInfo);
     },
     cutIn: () => {},
     appendSong: () => {},
