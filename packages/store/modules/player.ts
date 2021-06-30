@@ -25,8 +25,8 @@ const actions = {};
 const getters = {
   songInfo: (state_: any) => {
     return {
-      avatarSrc: state_.avatarSrc == null, // ?  : state_.avatarSrc,
-      fileSrc: state_.fileSrc == null, // ?  : state_.fileSrc,
+      avatarSrc: state_.avatarSrc, // ?  : state_.avatarSrc,
+      fileSrc: state_.fileSrc, // ?  : state_.fileSrc,
       authors: state_.authors == null ? ['未知'] : state_.authors,
       title: state_.title == null ? '未知' : state_.title,
     };
