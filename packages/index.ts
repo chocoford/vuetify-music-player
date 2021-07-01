@@ -1,5 +1,6 @@
 import { VueConstructor } from 'vue';
 import store from './store';
+
 import VMusicPlayer from './VMusicPlayer/player.vue';
 
 // // const install = VMusicPlayer.install;
@@ -25,7 +26,9 @@ const install = (Vue: VueConstructor, globalOptions: any = {}) => {
     play: (songInfo: any) => {
       store.commit('_vuetifyMusicPlayer/changeSong', songInfo);
     },
-    cutIn: () => {},
+    cutIn: (songInfo: any) => {
+      store.dispatch('_vuetifyMusicPlayer/cutIn', songInfo);
+    },
     appendSong: () => {},
     downlaod: () => {},
   };

@@ -36,7 +36,7 @@
             />
             <playlist
               v-if="tab == 1"
-              :listItems="historyPlayListItems"
+              :listItems="historyPlaylistItems"
               @play="replay"
             />
           </v-fade-transition>
@@ -61,7 +61,7 @@ export default Vue.extend({
       type: Array,
       default: () => [],
     },
-    historyPlayListItems: {
+    historyPlaylistItems: {
       type: Array,
       default: () => [],
     },

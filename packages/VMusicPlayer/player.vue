@@ -36,7 +36,7 @@
                 icon
                 :color="color"
                 @click="preSong"
-                :disabled="historyPlayListItems.length === 0"
+                :disabled="historyPlaylistItems.length === 0"
                 x-large
               >
                 <v-icon>mdi-skip-previous</v-icon>
@@ -58,7 +58,7 @@
                 icon
                 :color="color"
                 @click="nextSong"
-                :disabled="localFuturePlaylistItems.length === 0"
+                :disabled="futurePlaylistItems.length === 0"
                 x-large
               >
                 <v-icon>mdi-skip-next</v-icon>
@@ -131,8 +131,8 @@
       </v-card>
       <playlist-drawer
         :drawer.sync="playlist"
-        :historyPlayListItems="historyPlayListItems"
-        :futurePlaylistItems="localFuturePlaylistItems"
+        :historyPlaylistItems="historyPlaylistItems"
+        :futurePlaylistItems="futurePlaylistItems"
         @replay="replay"
         @cutIn="cutIn"
       />
@@ -171,15 +171,6 @@ export default Vue.extend({
     event: 'change',
   },
   props: {
-    futurePlaylistItems: {
-      type: Array,
-      default: () => [] as PlaylistItem[],
-    },
-    historyPlaylistItemsInit: {
-      type: Array,
-      default: () => [] as PlaylistItem[],
-    },
-
     // 播放器设置
     autoPlay: {
       type: Boolean,
@@ -242,12 +233,22 @@ export default Vue.extend({
     songInfo(): any {
       return store.getters['_vuetifyMusicPlayer/songInfo'];
     },
+    futurePlaylistItems: {
+      get: () => {
+        return store.getters['_vuetifyMusicPlayer/futurePlaylistItems'];
+      },
+    },
+    historyPlaylistItems: {
+      get: () => {
+        return store.getters['_vuetifyMusicPlayer/historyPlaylistItems'];
+      },
+    },
   },
   data() {
     return {
       // 歌曲信息
-      localAvatarSrc: '', // this.avatarSrc,
-      localTitle: '', // this.title,
+      localAvatarSrc: '',
+      localTitle: '',
       localAuthors: [] as string[],
       localFileSrc: '',
 
@@ -268,9 +269,6 @@ export default Vue.extend({
       volumeBeforeMuted: 0.5,
 
       playlist: false,
-      localFuturePlaylistItems: this.futurePlaylistItems as PlaylistItem[],
-      historyPlayListItems: this.historyPlaylistItemsInit as PlaylistItem[],
-
       needHistoryFlag: true,
     };
   },
@@ -309,28 +307,41 @@ export default Vue.extend({
       }
     },
     songInfo(newValue) {
+      console.log(this.needHistoryFlag);
       this.audio.autoplay = true;
-      if (this.localFileSrc !== null && this.loaded)
-        this.historyPlayListItems.unshift(this.nowPlayingSong);
+      if (this.localFileSrc !== null && this.loaded && this.needHistoryFlag)
+        ((this.historyPlaylistItems as unknown) as PlaylistItem[]).unshift(
+          this.nowPlayingSong
+        );
       this.playSong(newValue);
+      this.needHistoryFlag = true;
     },
   },
   methods: {
     preSong() {
       this.needHistoryFlag = false;
-      this.play();
+      // this.play();
       if (this.percentage < 1) {
-        const song = this.historyPlayListItems.shift() as PlaylistItem;
-        this.localFuturePlaylistItems.unshift(this.nowPlayingSong);
-        this.playSong(song);
+        store.dispatch('_vuetifyMusicPlayer/switch2Pre');
+
+        // const song = ((this
+        //   .historyPlaylistItems as unknown) as PlaylistItem[]).shift() as PlaylistItem;
+        // ((this.futurePlaylistItems as unknown) as PlaylistItem[]).unshift(
+        //   this.nowPlayingSong
+        // );
+        // this.playSong(song);
       } else {
         this.audio.currentTime = 0;
       }
     },
     nextSong() {
-      const song = this.localFuturePlaylistItems.shift() as PlaylistItem;
-      this.historyPlayListItems.unshift(this.nowPlayingSong);
-      this.playSong(song);
+      // const song = ((this
+      //   .futurePlaylistItems as unknown) as PlaylistItem[]).shift() as PlaylistItem;
+      // ((this.historyPlaylistItems as unknown) as PlaylistItem[]).unshift(
+      //   this.nowPlayingSong
+      // );
+      // this.playSong(song);
+      store.dispatch('_vuetifyMusicPlayer/switch2Next');
     },
     setPosition() {
       this.audio.currentTime = (this.audio.duration / 100) * this.percentage;
@@ -370,15 +381,22 @@ export default Vue.extend({
     },
     /// 重播某个歌曲
     replay(index: number) {
-      const song = this.historyPlayListItems.splice(index, 1)[0];
-      this.historyPlayListItems.unshift(this.nowPlayingSong);
+      const song = ((this
+        .historyPlaylistItems as unknown) as PlaylistItem[]).splice(
+        index,
+        1
+      )[0];
+      ((this.historyPlaylistItems as unknown) as PlaylistItem[]).unshift(
+        this.nowPlayingSong
+      );
       this.playSong(song);
       this.audio.autoplay = true;
       this.$emit('replay', song);
     },
     /// 插播某个歌曲
     cutIn(index: number) {
-      const song = this.localFuturePlaylistItems.splice(index, 1)[0];
+      const song = ((this
+        .futurePlaylistItems as unknown) as PlaylistItem[]).splice(index, 1)[0];
       this.playSong(song);
       this.audio.autoplay = true;
       this.$emit('cutIn', song);
@@ -405,7 +423,6 @@ export default Vue.extend({
       this.loading = false;
     },
     handleLoaded() {
-      // console.log('handleLoadded');
       const audio = this.$refs.audio as HTMLAudioElement;
       if (audio.readyState >= 2) {
         if (audio.duration === Infinity) {
@@ -421,6 +438,10 @@ export default Vue.extend({
         }
         this.loaded = true;
         this.loading = false;
+        store.dispatch(
+          '_vuetifyMusicPlayer/setNowPlayingSongDuration',
+          this.duration
+        );
         if (this.autoPlay) audio.play();
       } else {
         throw new Error('Failed to load sound file');

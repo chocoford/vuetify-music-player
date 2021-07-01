@@ -1,7 +1,6 @@
 import Vue from 'vue';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Vuex from 'vuex';
-
 import _vuetifyMusicPlayer from './modules/player';
 
 Vue.use(Vuex);
