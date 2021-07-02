@@ -87,8 +87,6 @@ this.$player.append({
 
 * `dark`: 指定主题
 * `show`: 指定是否显示
-* `futurePlaylistItems`: 播放列表
-* `historyPlaylistItemsInit`: 初始历史记录
 * `fixed`
 * `abosulte`
 
