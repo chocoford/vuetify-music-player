@@ -1,5 +1,6 @@
 import { VueConstructor } from 'vue';
 import store from './store';
+import { SongInfo } from './store/modules/player';
 
 import VMusicPlayer from './VMusicPlayer/player.vue';
 
@@ -23,14 +24,15 @@ const install = (Vue: VueConstructor, globalOptions: any = {}) => {
   Vue.component('VMusicPlayer', VMusicPlayer);
   // eslint-disable-next-line no-param-reassign
   Vue.prototype.$player = {
-    play: (songInfo: any) => {
+    play: (songInfo: SongInfo) => {
       store.commit('_vuetifyMusicPlayer/changeSong', songInfo);
     },
-    cutIn: (songInfo: any) => {
+    cutIn: (songInfo: SongInfo) => {
       store.dispatch('_vuetifyMusicPlayer/cutIn', songInfo);
     },
-    appendSong: () => {},
-    downlaod: () => {},
+    append: (songInfo: SongInfo) => {
+      store.dispatch('_vuetifyMusicPlayer/append', songInfo);
+    },
   };
 };
 

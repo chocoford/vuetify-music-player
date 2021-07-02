@@ -1,7 +1,22 @@
 /* eslint-disable no-param-reassign */
 // Data
+import Vue from 'vue';
 
-const state = {
+export type SongInfo = {
+  avatarSrc: string | null;
+  title: string | null;
+  authors: string[] | null;
+  duration: string | null;
+  fileSrc: string | null;
+};
+
+type PlayerState = {
+  songInfo: SongInfo;
+  historyPlaylistItems: SongInfo[];
+  futurePlaylistItems: SongInfo[];
+};
+
+const state: PlayerState = {
   songInfo: {
     avatarSrc: null,
     fileSrc: null,
@@ -14,71 +29,90 @@ const state = {
 };
 
 const mutations = {
-  changeSong(state_: any, payload: any) {
+  changeSong(state_: PlayerState, payload: SongInfo) {
     state_.songInfo = payload;
   },
-  unshiftToFuturePlaylist(state_: any, song: any) {
-    (state_.futurePlaylistItems as any[]).unshift(song);
+  setNowPlayingSongDuration(state_: PlayerState, duration: string) {
+    Vue.set(state_.songInfo, 'duration', duration);
   },
-  pushToFuturePlaylist(state_: any, song: any) {
-    (state_.futurePlaylistItems as any[]).push(song);
+  unshiftToFuturePlaylist(state_: PlayerState, song: SongInfo) {
+    state_.futurePlaylistItems.unshift(song);
   },
-  unshiftToHistoryPlaylist(state_: any, song: any) {
-    (state_.historyPlaylistItems as any[]).unshift(song);
+  pushToFuturePlaylist(state_: PlayerState, song: SongInfo) {
+    state_.futurePlaylistItems.push(song);
   },
-  pushToHistoryPlaylist(state_: any, song: any) {
-    (state_.historyPlaylistItems as any[]).push(song);
+  unshiftToHistoryPlaylist(state_: PlayerState, song: SongInfo) {
+    state_.historyPlaylistItems.unshift(song);
+  },
+  pushToHistoryPlaylist(state_: PlayerState, song: SongInfo) {
+    state_.historyPlaylistItems.push(song);
   },
 
-  removeItemFromHistoryPlaylist(state_: any, index: number) {
-    (state_.historyPlaylistItems as any[]).splice(index, 1);
+  removeItemFromHistoryPlaylist(state_: PlayerState, index: number) {
+    state_.historyPlaylistItems.splice(index, 1);
   },
-  removeItemFromFuturePlaylist(state_: any, index: number) {
-    (state_.futurePlaylistItems as any[]).splice(index, 1);
+  removeItemFromFuturePlaylist(state_: PlayerState, index: number) {
+    state_.futurePlaylistItems.splice(index, 1);
   },
-  switch2Pre(state_: any) {
-    const songNowPlaying = state_.songInfo;
-    const songToPlay = (state_.historyPlaylistItems as any[]).splice(0, 1)[0];
+  replay(state_: PlayerState, index: number) {
+    // const songNowPlaying = state_.songInfo;
+    const songToPlay = state_.historyPlaylistItems.splice(index, 1)[0];
     state_.songInfo = songToPlay;
-    (state_.futurePlaylistItems as any[]).unshift(songNowPlaying);
   },
-  switch2Next(state_: any) {
+  playInAdvance(state_: PlayerState, index: number) {
+    const songToPlay = state_.futurePlaylistItems.splice(index, 1)[0];
+    state_.songInfo = songToPlay;
+  },
+  switch2Pre(state_: PlayerState) {
+    const songNowPlaying = state_.songInfo;
+    const songToPlay = state_.historyPlaylistItems.splice(0, 1)[0];
+    state_.songInfo = songToPlay;
+    state_.futurePlaylistItems.unshift(songNowPlaying);
+  },
+  switch2Next(state_: PlayerState) {
     // 播放器会自动把当前播放歌曲列入历史记录中
     // const songNowPlaying = state_.songInfo;
     const songToPlay = (state_.futurePlaylistItems as any[]).splice(0, 1)[0];
     state_.songInfo = songToPlay;
     // (state_.historyPlaylistItems as any[]).unshift(songNowPlaying);
   },
-  setNowPlayingSongDuration(state_: any, duration: string) {
-    state_.songInfo.duration = duration;
-  },
 };
 
 const getters = {
-  songInfo: (state_: any) => {
+  songInfo: (state_: PlayerState) => {
     return {
       avatarSrc: state_.songInfo.avatarSrc, // ?  : state_.avatarSrc,
       fileSrc: state_.songInfo.fileSrc, // ?  : state_.fileSrc,
       authors:
         state_.songInfo.authors == null ? ['未知'] : state_.songInfo.authors,
       title: state_.songInfo.title == null ? '未知' : state_.songInfo.title,
-      duration: state_.songInfo.title == null ? '未知' : state_.songInfo.title,
+      duration:
+        state_.songInfo.duration == null ? '未知' : state_.songInfo.duration,
     };
   },
-  historyPlaylistItems: (state_: any) => {
+  historyPlaylistItems: (state_: PlayerState) => {
     return state_.historyPlaylistItems;
   },
-  futurePlaylistItems: (state_: any) => {
+  futurePlaylistItems: (state_: PlayerState) => {
     return state_.futurePlaylistItems;
   },
 };
 
 const actions = {
+  // setNowPlayingSongDuration(context: any, duration: string) {
+  //   context.commit('setNowPlayingSongDuration', duration);
+  // },
   cutIn(context: any, song: any) {
     context.commit('unshiftToFuturePlaylist', song);
   },
   append(context: any, song: any) {
     context.commit('pushToFuturePlaylist', song);
+  },
+  replay(context: any, index: number) {
+    context.commit('replay', index);
+  },
+  playInAdvance(context: any, index: number) {
+    context.commit('playInAdvance', index);
   },
   switch2Next(context: any) {
     // const songToPlay = getters.historyPlaylistItems;
@@ -97,8 +131,8 @@ const actions = {
     // context.commit('changeSong', songToPlay);
     context.commit('switch2Pre');
   },
-  setNowPlayingSongDuration(context: any, duration: string) {
-    context.commit('setNowPlayingSongDuration', duration);
+  add2HistoryList(context: any, song: SongInfo) {
+    context.commit('unshiftToHistoryPlaylist', song);
   },
 };
 

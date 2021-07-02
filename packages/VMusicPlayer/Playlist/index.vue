@@ -32,7 +32,7 @@
             <playlist
               v-if="tab == 0"
               :listItems="futurePlaylistItems"
-              @play="cutIn"
+              @play="playInAdvance"
             />
             <playlist
               v-if="tab == 1"
@@ -73,8 +73,8 @@ export default Vue.extend({
     replay(index: number) {
       this.$emit('replay', index);
     },
-    cutIn(index: number) {
-      this.$emit('cutIn', index);
+    playInAdvance(index: number) {
+      this.$emit('playInAdvance', index);
     },
   },
 });

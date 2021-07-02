@@ -4,6 +4,8 @@
 ![](https://img.shields.io/npm/v/vuetify-music-player)
 ![GitHub](https://img.shields.io/github/license/chocoford/vuetify-music-player)
 
+一款带播放列表的底边栏现代化播放器，内嵌有`插播`、`最后播放`等功能，可自定义额外按钮。
+
 ## 界面
 
 ![image-20210625152524137](./public/README/image-20210625152524137.png)
@@ -45,12 +47,41 @@ Vue.use(VMusicPlayer);
 ```typescript
 // in your any *.vue file.
 this.$player.play({
-  avatarSrc: ...,
-  title: ...,
-  authors: ...,
-  fileSrc: ...,
+  avatarSrc: ..., // string
+  title: ..., // string
+  authors: ..., // string[]
+  fileSrc: ..., // string
+  duration: ..., // string 可以不指定
 })
 ```
+
+### 插播
+
+```typescript
+// in your any *.vue file.
+this.$player.cutIn({
+  avatarSrc: ..., // string
+  title: ..., // string
+  authors: ..., // string[]
+  fileSrc: ..., // string
+  duration: ..., // string 可以不指定
+})
+```
+
+### 最后播放
+
+```typescript
+// in your any *.vue file.
+this.$player.append({
+  avatarSrc: ..., // string
+  title: ..., // string
+  authors: ..., // string[]
+  fileSrc: ..., // string
+  duration: ..., // string 可以不指定
+})
+```
+
+
 
 ## 选项
 
@@ -124,3 +155,8 @@ graph LR;
 			将历史记录第0个元素插到播放列表中--放入历史记录tag=false-->play;
 ```
 
+## TODO
+
+* 歌词
+* UI优化
+* 移动端UI优化

@@ -8892,7 +8892,7 @@ vm-browserify@^1.0.1:
   resolved "https://registry.npm.taobao.org/vm-browserify/download/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha1-eGQcSIuObKkadfUR56OzKobl3aA=
 
-vue-class-component@^7.2.3:
+vue-class-component@^7.2.3, vue-class-component@^7.2.6:
   version "7.2.6"
   resolved "https://registry.npm.taobao.org/vue-class-component/download/vue-class-component-7.2.6.tgz#8471e037b8e4762f5a464686e19e5afc708502e4"
   integrity sha1-hHHgN7jkdi9aRkaG4Z5a/HCFAuQ=
@@ -8969,6 +8969,13 @@ vuetify@^2.5.5:
   version "2.5.5"
   resolved "https://registry.nlark.com/vuetify/download/vuetify-2.5.5.tgz#66d4058209e1d70e9c742d37384f3ae63add7b04"
   integrity sha1-ZtQFggnh1w6cdC03OE865jrdewQ=
+
+vuex-pathify@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.npm.taobao.org/vuex-pathify/download/vuex-pathify-1.4.5.tgz#9a98e84d4e41dc236495568f65dec7de721ff395"
+  integrity sha1-mpjoTU5B3CNklVaPZd7H3nIf85U=
+  dependencies:
+    vue-class-component "^7.2.6"
 
 vuex@^3.6.2:
   version "3.6.2"
