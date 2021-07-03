@@ -8,7 +8,7 @@
 
 ## 界面
 
-![quicklook](Public/README/quicklook.gif)
+![quicklook](public/README/quicklook.gif)
 
 ## Demo&Docs
 
