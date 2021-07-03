@@ -8,9 +8,7 @@
 
 ## 界面
 
-![image-20210625152524137](./public/README/image-20210625152524137.png)
-
-![image-20210625152541462](./public/README/image-20210625152541462.png)
+![quicklook](Public/README/quicklook.gif)
 
 ## Demo&Docs
 
@@ -83,18 +81,29 @@ this.$player.append({
 
 
 
-## 选项
+| 选项       | 解释                     |
+| ---------- | ------------------------ |
+| `v-model`  | 指定是否显示             |
+| `dark`     | 指定主题                 |
+| `fixed`    | 指定`position: fixed`    |
+| `abosulte` | 指定`position: abosulte` |
 
-* `dark`: 指定主题
-* `show`: 指定是否显示
-* `fixed`
-* `abosulte`
 
-## 插槽
 
-* `centerLeading`：播放栏左侧位置
-* `centerTrailing`: 播放栏右侧位置
-* `right`: 音量调节右侧位置
+| 插槽             | 解释             |
+| ---------------- | ---------------- |
+| `centerLeading`  | 播放栏左侧位置   |
+| `centerTrailing` | 播放栏右侧位置   |
+| `right`          | 音量调节右侧位置 |
+
+
+
+| 事件               | 返回类型  | 解释                   |
+| ------------------ | --------- | ---------------------- |
+| `didReplay`        | `boolean` | 是否进行了重播操作     |
+| `didPlayInAdvance` | `boolean` | 是否进行了提前播放操作 |
+
+
 
 ## 示例
 
